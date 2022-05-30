@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+<script>
+clickit=function () {
+    document.getElementById('saml').click();
+};
+setTimeout(()=>{
+    document.getElementById('ask').style.display = 'block'
+    // just in case - try again
+    clickit()
+}, 1500)
+</script>
+</head>
+<body onload="clickit()" style="background:black;">
+    <div id="ask" style="display:none;width: fit-content;margin: auto;margin-top: 2em;">
+    <form action="{{url}}" method="post">
+        <input type="submit"  id="saml" value="Click here to proceed!" 
+            style="font-size:xx-large;padding:5%;border: 3px solid darkgray;">
+        <input type="hidden" name="SAMLResponse" value="{{payload['SAMLResponse']}}" >
+        <input type="hidden" name="RelayState" value="{{payload['RelayState']}}">
+    </form>
+</div>
+</body>
+</html>
