@@ -44,7 +44,8 @@ class RequestDecoder:
         self.root = xmltodict.parse(
             self.saml_req_xml,
             process_namespaces=True, 
-            namespaces=SamlNS)
+            namespaces=SamlNS
+        )
 
         self.request = self.root['samlp:AuthnRequest']
         
