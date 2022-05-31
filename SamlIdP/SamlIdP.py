@@ -61,10 +61,9 @@ class   SamlIdP(Blueprint):
     def saml2req(self):
         """ /saml2 API endpoint for SAMLRequest """
 
-        request_url = request.url.decode()
-    
         try:
-            saml_request = RequestDecoder(request_url)
+            url_base = request.url.split('?')[0]
+            saml_request = RequestDecoder(url_base, request.query_string)
         
         except Exception as e:
             current_app.logger.info(f'Failed to decode SAMLrequest {str(e)}', exc_info=True)

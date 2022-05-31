@@ -33,9 +33,11 @@ def saml_time(timestring):
 class RequestDecoder:
     """ Decode SAMLRequest, service the request """
 
-    def __init__(self, request_url):
+    def __init__(self, request_base, request_qs):
 
-        self.request_base, self.request_qs = request_url.split('?')
+        self.request_base = request_base
+        self.request_qs = request_qs.decode()
+        
         # deserialze query string without signing verification
         self.saml_req_xml, self.relayState = SamlRequestSerializer.deserializeSamlRequest(request_qs=self.request_qs)
         

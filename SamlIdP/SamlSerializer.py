@@ -138,8 +138,8 @@ class SamlRequestSerializer:
         reqargs = parse_qs(request_qs, keep_blank_values=True)
         
         if 'SAMLRequest' not in reqargs:
-            raise Exception('SAMLRequest parameter missing')
-
+            raise Exception('Deserialization - SAMLRequest parameter missing')
+        
         # decode and deflate SAMLRequest XML        
         samlRequest = zlib.decompress(
                 b64decode(reqargs['SAMLRequest'][0]),
@@ -160,7 +160,7 @@ class SamlRequestSerializer:
         reqargs = parse_qs(request_qs, keep_blank_values=True)
         
         if 'SAMLRequest' not in reqargs:
-            raise Exception('SAMLRequest parameter missing')
+            raise Exception('verification - SAMLRequest parameter missing')
 
         # decode and deflate SAMLRequest XML        
         samlRequest = zlib.decompress(
