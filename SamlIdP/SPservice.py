@@ -1,10 +1,11 @@
 from .constants import *
 from .SamlSerializer import SamlRequestSerializer
+from .Metadata import loadSPMetadata
 import logging
 
 allServiceProviders = {}
 
-class SamlSPs:
+class SamlSPservice:
     """ SAML Service Provider definition """
 
     def __init__(self, idP, sp_config):
@@ -12,6 +13,8 @@ class SamlSPs:
         self.idP = idP
         self.idp_id = idP.idp_id
 
+        sp_config = loadSPMetadata(sp_config)
+        
         self.sp_id = sp_config['SPEntityId']
         self.acs = sp_config.get('ACSList',[])
 

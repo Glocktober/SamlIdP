@@ -4,7 +4,7 @@ from secrets import token_hex
 import xmltodict
 
 from .ResponseTemplate import samlResponseTemplate, samlErrorResponseTemplate
-from .SPservice import SamlSPs
+from .SPservice import SamlSPservice
 
 from .constants import *
 
@@ -18,7 +18,7 @@ class ResponseEncoder:
     def __init__(self, saml_request):
 
         self.sp_id = saml_request.issuer
-        self.sp = SamlSPs.getSamlSP(self.sp_id)
+        self.sp = SamlSPservice.getSamlSP(self.sp_id)
         self.idP = self.sp.idP
 
         # deep copy with fresh timestamps and id's

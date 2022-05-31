@@ -1,4 +1,4 @@
-from .SPservice import SamlSPs
+from .SPservice import SamlSPservice
 from .ResponseHandler import ResponseHandler
 from .SamlSerializer import SamlResponseSigner
 
@@ -29,7 +29,7 @@ class IdPservice:
 
         # Register defined service providers
         for sp in idp_config['splist']:
-            SamlSPs(idP=self, sp_config=sp)
+            SamlSPservice(idP=self, sp_config=sp)
 
 
     @property

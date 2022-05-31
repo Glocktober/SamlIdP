@@ -7,7 +7,7 @@ import xmltodict
 
 from .constants import *
 from .SamlSerializer import SamlRequestSerializer
-from .SPservice import SamlSPs
+from .SPservice import SamlSPservice
 
 samlp = lambda tag: 'urn:oasis:names:tc:SAML:2.0:protocol:'+tag 
 saml = lambda tag: 'urn:oasis:names:tc:SAML:2.0:assertion:'+tag
@@ -150,7 +150,7 @@ class RequestDecoder:
         if self.version != '2.0':
             return SamlStatusVersionMismatch, f'Version 2.0 is required'
 
-        self.sp = SamlSPs.getSamlSP(self.issuer)
+        self.sp = SamlSPservice.getSamlSP(self.issuer)
 
         if self.sp is None:
             raise Exception(f'Unknown Service Provider {self.sp}')
@@ -226,5 +226,5 @@ class RequestThawed(RequestDecoder):
         self.request_qs = all['request_qs']
         self.request_base = all['request_base']
         
-        self.sp = SamlSPs.getSamlSP(self.issuer)
+        self.sp = SamlSPservice.getSamlSP(self.issuer)
         self.idP = self.sp.idP
