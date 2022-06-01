@@ -3,8 +3,8 @@ from secrets import token_hex
 from flask import (
     Response,
     abort, 
-    current_app, 
-    render_template, 
+    current_app,
+    render_template,
     session, 
 )
 
@@ -34,6 +34,8 @@ class   ResponseHandler:
         """ Complete authentication response """
 
         status = saml_request.responseStatus
+
+        current_app.logger.info(f'Authn Request {saml_request.requestId} for SP "{saml_request.issuer}"')
         
         if status == SamlStatusSuccess and saml_request.idP.is_authenticated and not saml_request.forceAuthn:
             # immediate success return
