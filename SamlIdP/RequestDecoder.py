@@ -153,7 +153,7 @@ class RequestDecoder:
         self.sp = SamlSPservice.getSamlSP(self.issuer)
 
         if self.sp is None:
-            raise Exception(f'Unknown Service Provider {self.sp}')
+            raise Exception(f'Unknown Service Provider {self.issuer}')
 
         self.idP = self.sp.idP
 

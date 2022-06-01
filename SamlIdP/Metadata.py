@@ -161,6 +161,9 @@ def loadSPMetadata(sp_config):
         for key in keydescr:
             if key['@use'] == 'signing':
                 cert = key['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate']
+                if cert:
+                    cert = '-----BEGIN CERTIFICATE-----'+cert+'-----END CERTIFICATE-----'
+                    cert = cert.encode('utf-8') 
                 break
     
     if 'md:SingleLogoutService' in spsso:

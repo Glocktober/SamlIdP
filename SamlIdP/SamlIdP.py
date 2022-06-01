@@ -75,7 +75,7 @@ class   SamlIdP(Blueprint):
 
         except Exception as e:
             current_app.logger.error(f'Error handling SAMLRequest: {str(e)}',exc_info=True)
-            abort(Response(status=500, response=f'Error handling SAMLRequest: service failed to process request'))
+            abort(Response(status=500, response=f'Error handling SAMLRequest: {str(e)}'))
     
 
     def saml2Meta(self):
