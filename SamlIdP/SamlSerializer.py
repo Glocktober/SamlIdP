@@ -39,7 +39,8 @@ class   _Signer:
         return self.key.sign(
             data, 
             padding.PKCS1v15(), 
-            hashes.SHA256())
+            hashes.SHA256()
+        )
 
 
     def verify(self, signature, data):
@@ -54,6 +55,7 @@ class   _Signer:
             padding.PKCS1v15(), 
             hashes.SHA256()
         )
+        return True
 
 
     def validateCert(self, cert):
@@ -62,6 +64,7 @@ class   _Signer:
         cert = serialize_cert(cert)
         if cert != self.serial_cert:
             raise Exception('Incorrect Certificate')
+        return True
 
 
     @classmethod
@@ -81,9 +84,10 @@ def serialize_cert(cert):
         cert = cert.decode()
 
     replacements = [
+        '\r',
+        '\n',
         '-----END CERTIFICATE-----',
         '-----BEGIN CERTIFICATE-----',
-        '\n'
     ]
     for replacement in replacements:
         cert = cert.replace(replacement, '')
@@ -250,9 +254,8 @@ class SamlResponseSigner:
         # Calculate digest on saml_response
         c14n_response = etree.tostring(xmlroot,method='c14n2')
         hash_value = b64encode(self.signer.hash(c14n_response)).decode()
-
         # verify signed info
-        return self.verifySignature(sigroot, hash_value, noexcept=True)
+        return self.verifySignature(sigroot, hash_value, noexcept=noexcept)
 
 
     def verifySignature(self, sigroot, response_digest, noexcept=True):
@@ -266,9 +269,12 @@ class SamlResponseSigner:
             # Get the <ds:SignedInfo> as XML
             signed_info = sigroot.find(f'./{dsSignedInfoTag}')
             
-            signed_info_xml = etree.tostring(signed_info,method='c14n')
+            # play games to get c14n2 of the <SignedInfo> subtree
+            signed_info_xml = etree.tostring(signed_info,method='xml')
+            sinforoot = etree.XML(signed_info_xml)
+            signed_info_xml = etree.tostring(sinforoot, method='c14n2')
             
-            # Validate the signature for <ds:SignedInfo>
+            # Validate the signature for <SignedInfo>
             signature_value = sigroot.find(f'.//{dsSignatureValueTag}').text
             self.signer.verify(b64decode(signature_value), signed_info_xml)
         
