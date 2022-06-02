@@ -242,20 +242,58 @@ class SamlResponseSigner:
         return etree.tostring(xmlroot, xml_declaration=False)
 
 
+    def verifySignedSamlResponse(self, saml_response, noexcept=True):
+        """ Verify the SAMLResponse has a valid signature """
+
+        return self.verifySamlResponse(saml_response, noexcept) and self.verifySamlAssertion(saml_response, noexcept)
+
+
     def verifySamlResponse(self, saml_response, noexcept=True):
-        """ Verify signed SAMLResponse """
+        """ Verify signed SAMLResponse Response """
 
         xmlroot = etree.XML(saml_response)
 
+        # Validate there is at least one signature on the response
+        anysig = xmlroot.find(f'.//{dsSignatureTag}')
+        if anysig is None:
+            if noexcept:
+                return False
+            raise Exception('No <Signature> found on SAMLRequest')
+
         # Remove <ds:Signature> from response
         sigroot = xmlroot.find(f'./{dsSignatureTag}')
-        xmlroot.remove(sigroot)
 
-        # Calculate digest on saml_response
-        c14n_response = etree.tostring(xmlroot,method='c14n2')
-        hash_value = b64encode(self.signer.hash(c14n_response)).decode()
-        # verify signed info
-        return self.verifySignature(sigroot, hash_value, noexcept=noexcept)
+        if sigroot is not None:
+            xmlroot.remove(sigroot)
+
+            # Calculate digest on saml_response
+            c14n_response = etree.tostring(xmlroot,method='c14n2')
+            hash_value = b64encode(self.signer.hash(c14n_response)).decode()
+            # verify signed info
+            return self.verifySignature(sigroot, hash_value, noexcept=noexcept)
+
+        # Response is not signed
+        return True
+
+
+    def verifySamlAssertion(self, saml_response, noexcept=True):
+        """ Verify signed SAMLResponse Assertions """
+
+        xmlroot = etree.XML(saml_response)
+
+        sigroot = xmlroot.find(f'./{samlAssertionTag}/{dsSignatureTag}')
+
+        if sigroot is not None:
+            asseroot = xmlroot.find(f'./{samlAssertionTag}')
+            asseroot.remove(sigroot)
+
+            c14n_assertions = etree.tostring(asseroot,method='c14n2')
+            hash_value = b64encode(self.signer.hash(c14n_assertions)).decode()
+            
+            return self.verifySignature(sigroot, hash_value, noexcept=noexcept)
+
+        # Assertion is not signed        
+        return True
 
 
     def verifySignature(self, sigroot, response_digest, noexcept=True):
