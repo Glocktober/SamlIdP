@@ -188,12 +188,14 @@ def loadSPMetadata(sp_config):
             if sso['@Binding'] == HTTP_POST:
                 ssolist.append(sso['@Location'])        
 
+    sign_assertion = spsso.get('md:WantAssertionsSigned','false') == 'true'
 
     sp_meta['SPEntityId'] = sp_id
     sp_meta['ACSList'] = ssolist
     sp_meta['sp_cert'] = cert
     sp_meta['NameIdFmt'] = nameid_fmt
     sp_meta['AuthnRequestsSigned'] = authn_signed
+    sp_meta['WantAssertionsSigned'] = sign_assertion
 
     sp_meta.update(sp_config)
 

@@ -1,19 +1,12 @@
-
 from datetime import datetime, timedelta
 import json
-from flask import current_app
 
+from flask import current_app
 import xmltodict
 
 from .constants import *
 from .SamlSerializer import SamlRequestSerializer
 from .SPservice import SamlSPservice
-
-samlp = lambda tag: 'urn:oasis:names:tc:SAML:2.0:protocol:'+tag 
-saml = lambda tag: 'urn:oasis:names:tc:SAML:2.0:assertion:'+tag
-
-inside_time_window = lambda t : t < datetime.utcnow() - timedelta(minutes=5) and \
-        t > datetime.utcnow() + timedelta(minutes=5)
 
 resolve_leaf = lambda element: element['#text'] if element and '#text' in element else element
 
@@ -28,6 +21,7 @@ def saml_time(timestring):
         return datetime.strptime(timestring, fmt1)
     except:
         return datetime.strptime(timestring, fmt2)
+
 
 
 class RequestDecoder:
@@ -94,7 +88,6 @@ class RequestDecoder:
     @property
     def forceAuthn(self):
         forceAuthn = self.request.get('@ForceAuthn','false') == 'true'
-        # can override with idP config
         return forceAuthn and self.idP.permit_forceAuthn
     
     @forceAuthn.setter

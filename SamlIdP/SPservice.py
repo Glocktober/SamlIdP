@@ -1,7 +1,8 @@
+import logging as logger
+
 from .constants import *
 from .SamlSerializer import SamlRequestSerializer
 from .Metadata import loadSPMetadata
-import logging
 
 allServiceProviders = {}
 
@@ -25,7 +26,7 @@ class SamlSPservice:
         # Default is to sign response but not assertion
         self.sign_response = sp_config.get('SignResponse',True)
         self.sign_assertion = sp_config.get('WantAssertionsSigned',False)
-        
+
         assert self.sign_response or self.sign_assertion, f'Config error: ({self.sp_id}) Either Response or Assertions, or both must be signed'
 
         self.defRelayState = sp_config.get('RelayState','')
@@ -43,7 +44,7 @@ class SamlSPservice:
     
         allServiceProviders[self.sp_id] = self
 
-        logging.info(f'IdP: {idP.idp_id} added Service Provider: {self.sp_id}')
+        logger.info(f'IdP: {idP.idp_id} added Service Provider: {self.sp_id}')
 
 
     @classmethod
