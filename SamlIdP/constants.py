@@ -47,6 +47,7 @@ dsDigestValueTag = '{http://www.w3.org/2000/09/xmldsig#}DigestValue'
 dsSignatureValueTag = '{http://www.w3.org/2000/09/xmldsig#}SignatureValue'
 dsX509CertificateTag = '{http://www.w3.org/2000/09/xmldsig#}X509Certificate'
 
+samlAssertionTag = '{urn:oasis:names:tc:SAML:2.0:assertion}Assertion'
 samlIssuerTag = '{urn:oasis:names:tc:SAML:2.0:assertion}Issuer'
 
 dsSigAlgValue = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
