@@ -19,8 +19,14 @@ class SamlSPservice:
         self.acs = sp_config.get('ACSList',[])
 
         assert self.sp_id, 'Config error: SP Entity ID not specified'
-        assert self.acs, 'Config error: SP Assertion Consumer URL not specified'
-        assert self.sp_id not in allServiceProviders, 'Config error: SP instance already defined'
+        assert self.acs, f'Config error: ({self.sp_id}) SP Assertion Consumer URL not specified'
+        assert self.sp_id not in allServiceProviders, f'Config error: ({self.sp_id}) SP instance already defined'
+
+        # Default is to sign response but not assertion
+        self.sign_response = sp_config.get('SignResponse',True)
+        self.sign_assertion = sp_config.get('WantAssertionsSigned',False)
+        
+        assert self.sign_response or self.sign_assertion, f'Config error: ({self.sp_id}) Either Response or Assertions, or both must be signed'
 
         self.defRelayState = sp_config.get('RelayState','')
         self.defConsent = sp_config.get('DefaultConsent',consUndefined)

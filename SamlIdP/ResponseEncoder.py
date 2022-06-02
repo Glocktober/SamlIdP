@@ -104,7 +104,11 @@ class ResponseEncoder:
         # convert dict to raw saml bytes
         saml_data = xmltodict.unparse(self.root, full_document=False).encode('utf-8')
         
-        return self.idP.signResponse(saml_data)
+        return self.idP.signResponse(
+            saml_data,
+            sign_assertion = self.sp.sign_assertion,
+            sign_response = self.sp.sign_response,
+        )
 
 
     def pretty(self):

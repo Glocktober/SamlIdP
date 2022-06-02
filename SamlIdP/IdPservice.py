@@ -1,3 +1,5 @@
+import logging as logger
+
 from .SPservice import SamlSPservice
 from .ResponseHandler import ResponseHandler
 from .SamlSerializer import SamlResponseSigner
@@ -29,15 +31,19 @@ class IdPservice:
 
         # Register defined service providers
         for sp in idp_config['splist']:
-            SamlSPservice(idP=self, sp_config=sp)
+            try:
+                SamlSPservice(idP=self, sp_config=sp)
+                
+            except AssertionError as e:
+                logger.error(str(e) + ' - SKIPPING THIS SERVICE PROVIDER')
 
 
     @property
     def is_authenticated(self):
         return self.auth.is_authenticated
     
-    def signResponse(self,saml_response):
-        return self.signer.signSamlResponse(saml_response)
+    def signResponse(self,saml_response, sign_assertion=False, sign_response=True):
+        return self.signer.signSaml(saml_response, sign_assertion, sign_response)
 
     def verifyResponse(self,saml_response):
         return self.signer.verifySamlResponse(saml_response)

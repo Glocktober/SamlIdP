@@ -211,9 +211,21 @@ class SamlResponseSigner:
         self.parser = etree.XMLParser(remove_blank_text=True)
 
 
-    def signSamlResponse(self, saml_response):
-        """ Add signature to a SAMLResponse """
+    def signSaml(self, saml_response, sign_assertion, sign_response):
+        """ Add signatures to a SAMLResponse """
     
+        if sign_assertion:
+            saml_response = self.signSamlAssertion(saml_response)
+
+        if sign_response:
+            saml_response = self.signSamlResponse(saml_response)
+        
+        return saml_response
+    
+
+    def signSamlResponse(self, saml_response):
+        """ Sign entire SAMLResponse """
+
         # Get the document ID
         xmlroot = etree.XML(saml_response,parser=self.parser)
         document_id = xmlroot.attrib['ID']
@@ -240,6 +252,43 @@ class SamlResponseSigner:
 
         # Return signed SAMLResponse
         return etree.tostring(xmlroot, xml_declaration=False)
+
+
+    def signSamlAssertion(self, saml_response):
+        """ Add signature to a SAML Assertions """
+    
+        # Get the document ID
+        docroot = etree.XML(saml_response,parser=self.parser)
+
+        xmlroot = docroot.find(f'./{samlAssertionTag}')
+
+        if xmlroot is None:
+            raise Exception('Response has no Assertion tag to sign')
+
+        document_id = xmlroot.attrib['ID']
+
+        c14n_response = etree.tostring(xmlroot, method='c14n2')
+
+        # Calculate digest on body
+        digest_value = self.signer.hash(c14n_response)
+
+        # Create <ds:SignedInfo> document with ID and calculated digest
+        signed_info = self.nodeSignedInfo(document_id, digest_value)
+        
+        # Sign the <ds:SignedInfo> node
+        signature_value = b64encode(self.signer.sign(signed_info)).decode()
+
+        # Create full <ds:Signature> node
+        signature_xml = self.nodeSignature(signed_info, signature_value)
+
+        # Create tree of the full <ds:Signature> node
+        sigroot = etree.XML(signature_xml)
+
+        # Add this node after the <saml:Issuer> node
+        self.insertAfterTag(xmlroot, sigroot, samlIssuerTag)
+
+        # Return signed SAMLResponse
+        return etree.tostring(docroot, xml_declaration=False)
 
 
     def verifySignedSamlResponse(self, saml_response, noexcept=True):
