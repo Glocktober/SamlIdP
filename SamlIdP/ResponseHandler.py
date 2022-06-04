@@ -48,24 +48,22 @@ class   ResponseHandler:
 
         else:
             # freeze saml_request for primary authentication verification
-            reauth = saml_request.forceAuthn
-
-            if reauth:
-                saml_request.idP.unauthenticate()
             
-                # So we don't get here twice:
+            if saml_request.forceAuthn:
+                force_reauth = True
+                saml_request.idP.unauthenticate()
+
+                # Assure we don't get here twice:
                 saml_request.forceAuthn = False
 
-            iced_request = saml_request.freeze()
+            authId = 'Auth:' + saml_request.requestId
 
-            key = 'SA' + token_hex(5)
-            session[key] = iced_request
+            session[authId] = saml_request.freeze()
             
             nkwargs={
-                'force_reauth': reauth,
-                'reqid' : 'Pri' + saml_request.requestId,
+                'force_reauth': force_reauth,
+                'reqid' : authId,
                 'after': 'SA',
-                'SA': key,
             }
             
             current_app.logger.info(f'Froze request {saml_request.requestId} for primary authentication')
@@ -139,17 +137,15 @@ class   ResponseHandler:
 
 
     @classmethod
-    def after_authn(this, relayState):
+    def after_authn(this, authId):
         """ Unthaw response and validate authentication """
         
-        key = relayState['SA'][0]
-        
         try:
-            iced_request = session[key]
-            del session[key]
+            iced_request = session[authId]
+            del session[authId]
 
         except Exception as e:
-            current_app.logger.info(f'Failed to restore frozen session {key}')
+            current_app.logger.info(f'Failed to restore frozen session {authId.split(":")[1]}')
             session.clear()
             abort(500, 'Something went wrong, please try again')
 
