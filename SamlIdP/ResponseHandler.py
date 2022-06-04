@@ -55,6 +55,8 @@ class   ResponseHandler:
 
                 # Assure we don't get here twice:
                 saml_request.forceAuthn = False
+            else:
+                force_reauth = False
 
             authId = 'Auth:' + saml_request.requestId
 
