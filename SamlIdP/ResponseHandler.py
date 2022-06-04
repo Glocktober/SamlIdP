@@ -58,7 +58,7 @@ class   ResponseHandler:
             else:
                 force_reauth = False
 
-            authId = 'Auth:' + saml_request.requestId
+            authId = 'Auth_' + saml_request.requestId
 
             session[authId] = saml_request.freeze()
             
@@ -147,7 +147,7 @@ class   ResponseHandler:
             del session[authId]
 
         except Exception as e:
-            current_app.logger.info(f'Failed to restore frozen session {authId.split(":")[1]}')
+            current_app.logger.info(f'Failed to restore frozen session {authId.replace("Auth_","")}')
             session.clear()
             abort(500, 'Something went wrong, please try again')
 
